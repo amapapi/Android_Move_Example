@@ -21,8 +21,8 @@ public class MainActivity extends Activity {
 	private Marker mMoveMarker;
 
 	// 通过设置间隔时间和距离可以控制速度和图标移动的距离
-	private static final int TIME_INTERVAL = 200;
-	private static final double DISTANCE = 0.001;
+	private static final int TIME_INTERVAL = 80;
+	private static final double DISTANCE = 0.0001;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -221,7 +221,11 @@ public class MainActivity extends Activity {
 						double xMoveDistance = isReverse ? getXMoveDistance(slope)
 								: -1 * getXMoveDistance(slope);
 
-						for (double j = startPoint.latitude; (j > endPoint.latitude) == isReverse; j = j
+						
+						for (double j = startPoint.latitude;
+								!((j > endPoint.latitude)^ isReverse);
+								
+								j = j
 								- xMoveDistance) {
 							LatLng latLng = null;
 							if (slope != Double.MAX_VALUE) {
