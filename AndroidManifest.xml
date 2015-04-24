@@ -15,7 +15,7 @@
         >
            <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="申请key" />
+            android:value="您的key" />
         
         <activity
             android:name=".MainActivity"
