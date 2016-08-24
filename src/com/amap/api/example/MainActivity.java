@@ -54,6 +54,10 @@ public class MainActivity extends Activity {
 		float latitude = (float) (-Math.cos(0) * radius + centerLatitude);
 		float longtitude = (float) (Math.sin(0) * radius + centerLontitude);
 		polylineOptions.add(new LatLng(latitude, longtitude));
+	
+		
+		 
+		
 		// polylineOptions.add(new LatLng(39.954368, 116.478038));
 		// polylineOptions.add(new LatLng(39.92515, 116.510997));
 		// polylineOptions.add(new LatLng(39.892198, 116.439449));
@@ -184,15 +188,48 @@ public class MainActivity extends Activity {
 	}
 
 	/**
-	 * 计算x方向每次移动的距离
+	 * 计算每次移动的距离
 	 */
-	private double getXMoveDistance(double slope) {
-		if (slope == Double.MAX_VALUE) {
+	private double getMoveDistance(double slope) {
+		if (slope == Double.MAX_VALUE||slope==0) {
 			return DISTANCE;
 		}
 		return Math.abs((DISTANCE * slope) / Math.sqrt(1 + slope * slope));
 	}
 
+	/**
+	 * 判断是否为反序
+	 * */
+	private boolean isReverse(LatLng startPoint,LatLng endPoint,double slope){
+		if(slope==0){
+		return	startPoint.longitude>endPoint.longitude;
+		}
+		return (startPoint.latitude > endPoint.latitude);
+		 
+	}
+
+	/**
+	 * 获取循环初始值大小
+	 * */
+	private double getStart(LatLng startPoint,double slope){
+		if(slope==0){
+			return	startPoint.longitude;
+			}
+			return  startPoint.latitude;
+	}
+	
+	/**
+	 * 获取循环结束大小
+	 * */
+	private double getEnd(LatLng endPoint,double slope){
+		if(slope==0){
+			return	endPoint.longitude;
+			}
+			return  endPoint.latitude;
+	}
+	 
+	
+	
 	/**
 	 * 循环进行移动逻辑
 	 */
@@ -208,30 +245,26 @@ public class MainActivity extends Activity {
 						LatLng endPoint = mVirtureRoad.getPoints().get(i + 1);
 						mMoveMarker
 						.setPosition(startPoint);
-
 						mMoveMarker.setRotateAngle((float) getAngle(startPoint,
 								endPoint));
 
 						double slope = getSlope(startPoint, endPoint);
-						//是不是正向的标示（向上设为正向）
-						boolean isReverse = (startPoint.latitude > endPoint.latitude);
-
+						boolean isReverse =isReverse(startPoint, endPoint, slope);	
+						double moveDistance = isReverse ? getMoveDistance(slope) : -1 * getMoveDistance(slope);
 						double intercept = getInterception(slope, startPoint);
-
-						double xMoveDistance = isReverse ? getXMoveDistance(slope)
-								: -1 * getXMoveDistance(slope);
-
-						
-						for (double j = startPoint.latitude;
-								!((j > endPoint.latitude)^ isReverse);
-								
-								j = j
-								- xMoveDistance) {
+						for(double j=getStart(startPoint, slope); (j > getEnd(endPoint, slope))==isReverse;j = j
+								- moveDistance){
 							LatLng latLng = null;
-							if (slope != Double.MAX_VALUE) {
-								latLng = new LatLng(j, (j - intercept) / slope);
-							} else {
+							if(slope==0){
+								latLng = new LatLng(startPoint.latitude, j);
+							}
+							else if (slope == Double.MAX_VALUE) {
 								latLng = new LatLng(j, startPoint.longitude);
+							}
+
+							else {
+								
+								latLng = new LatLng(j, (j - intercept) / slope);
 							}
 							mMoveMarker.setPosition(latLng);
 							try {
